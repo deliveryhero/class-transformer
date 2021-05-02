@@ -1,5 +1,5 @@
 import 'reflect-metadata';
-import {classToPlain, Expose, plainToClass, Type} from '../../src/index';
+import {classToPlain, plainToClass, Type} from '../../src';
 import { defaultMetadataStorage } from '../../src/storage';
 import { Alias } from '../../src/decorators';
 
@@ -77,35 +77,6 @@ describe('alias functionality', () => {
       useAliases: true,
     });
 
-    expect(instance.user.id).toEqual(123);
-    expect(instance.user.firstName).toStrictEqual('Alex');
-  });
-
-  it.only('Tests expossse', () => {
-    defaultMetadataStorage.clear();
-
-    class User {
-      id: number;
-
-      @Expose({ name: 'fn' })
-      firstName: string;
-    }
-
-    class Order {
-      @Expose({ name: 'u', since: 2 })
-      @Type(() => User)
-      user: User;
-    }
-
-    const plain = {
-      u: {
-        id: 123,
-        fn: 'Alex',
-      }
-    };
-
-    const instance = plainToClass(Order, plain);
-    console.log(JSON.stringify(instance, null ,2));
     expect(instance.user.id).toEqual(123);
     expect(instance.user.firstName).toStrictEqual('Alex');
   });
