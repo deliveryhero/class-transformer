@@ -1,5 +1,5 @@
 import { defaultMetadataStorage } from './storage';
-import { TypeHelpOptions, TypeOptions, ClassTransformOptions, TypeMetadata } from './interfaces';
+import {TypeHelpOptions, TypeOptions, ClassTransformOptions, TypeMetadata, AliasMetadata} from './interfaces';
 import { TransformationType } from './enums';
 import { getGlobal } from './utils';
 
@@ -159,6 +159,10 @@ export class TransformOperationExecutor {
               propertyName = exposeMetadata.propertyName;
               newValueKey = exposeMetadata.propertyName;
             }
+            const aliasMetadata = defaultMetadataStorage.findAliasMetadataByCustomName(targetType as Function, key);
+            if (aliasMetadata && aliasMetadata.options && aliasMetadata.options.name && this.options.useAliases) {
+              newValueKey = aliasMetadata.propertyName;
+            }
           } else if (
             this.transformationType === TransformationType.CLASS_TO_PLAIN ||
             this.transformationType === TransformationType.CLASS_TO_CLASS
@@ -166,6 +170,16 @@ export class TransformOperationExecutor {
             const exposeMetadata = defaultMetadataStorage.findExposeMetadata(targetType as Function, key);
             if (exposeMetadata && exposeMetadata.options && exposeMetadata.options.name) {
               newValueKey = exposeMetadata.options.name;
+            }
+            const aliasMetadata = defaultMetadataStorage.findAliasMetadata(targetType as Function, key);
+            if (
+              this.transformationType === TransformationType.CLASS_TO_PLAIN &&
+              aliasMetadata &&
+              aliasMetadata.options &&
+              aliasMetadata.options.name &&
+              this.options.useAliases
+            ) {
+              newValueKey = aliasMetadata.options.name;
             }
           }
         }
@@ -186,7 +200,17 @@ export class TransformOperationExecutor {
         if (targetType && isMap) {
           type = targetType;
         } else if (targetType) {
-          const metadata = defaultMetadataStorage.findTypeMetadata(targetType as Function, propertyName);
+          let metadata;
+          if (this.options.useAliases) {
+            const am = defaultMetadataStorage.findAliasMetadataByCustomName(targetType as Function, propertyName);
+            if (am && am.propertyName) {
+              metadata = defaultMetadataStorage.findTypeMetadata(targetType as Function, am.propertyName);
+            } else {
+              metadata = defaultMetadataStorage.findTypeMetadata(targetType as Function, propertyName);
+            }
+          } else {
+            metadata = defaultMetadataStorage.findTypeMetadata(targetType as Function, propertyName);
+          }
           if (metadata) {
             const options: TypeHelpOptions = { newObject: newValue, object: value, property: propertyName };
             const newType = metadata.typeFunction ? metadata.typeFunction(options) : metadata.reflectedType;

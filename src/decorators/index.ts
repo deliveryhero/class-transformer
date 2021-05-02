@@ -1,3 +1,4 @@
+export * from './alias.decorator';
 export * from './exclude.decorator';
 export * from './expose.decorator';
 export * from './transform-class-to-class.decorator';

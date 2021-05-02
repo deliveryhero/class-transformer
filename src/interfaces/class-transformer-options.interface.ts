@@ -63,4 +63,12 @@ export interface ClassTransformOptions {
    * This is useful when you convert a plain object to a class and have an optional field with a default value.
    */
   exposeDefaultValues?: boolean;
+
+  /**
+   * When set to true, fields names will be replaced with aliases in class to plain transformation. Otherwise
+   * filed names will be unchanged.
+   *
+   * DEFAULT: `false`
+   */
+  useAliases?: boolean;
 }
